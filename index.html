@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!-- This line makes the page scale correctly on phones. Without it, mobile browsers zoom out. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ROBOtrack</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- SIDEBAR: on desktop it sits on the left, on phones CSS moves it to the bottom -->
+    <nav class="sidebar" aria-label="Main navigation">
+      <div class="brand">ROBO<span>track</span></div>
+      <!-- Each button has data-section. app.js reads it to know which section to show. -->
+      <button class="nav-btn" data-section="dashboard">Dashboard</button>
+      <button class="nav-btn" data-section="learning">Learning</button>
+      <button class="nav-btn" data-section="resources">Resources</button>
+      <button class="nav-btn" data-section="projects">Projects</button>
+      <button class="nav-btn" data-section="internships">Internships</button>
+    </nav>
+
+    <!-- MAIN AREA: every feature lives in its own <section>. Only one is visible at a time. -->
+    <main class="content">
+
+      <section id="dashboard" class="page">
+        <h1>Dashboard</h1>
+        <p class="muted">Your progress across learning, projects and internships.</p>
+
+        <!-- Headline numbers -->
+        <div class="stats">
+          <div class="stat"><span class="stat-number" id="dash-learning-avg">0%</span><span class="stat-label">Average learning progress</span></div>
+          <div class="stat"><span class="stat-number" id="dash-topics-done">0</span><span class="stat-label">Topics completed</span></div>
+          <div class="stat"><span class="stat-number" id="dash-projects-active">0</span><span class="stat-label">Projects in progress</span></div>
+          <div class="stat"><span class="stat-number" id="dash-applications">0</span><span class="stat-label">Applications sent</span></div>
+          <div class="stat"><span class="stat-number" id="dash-saved">0</span><span class="stat-label">Saved resources</span></div>
+        </div>
+
+        <!-- Shown only if the chart library could not be loaded (for example, no internet) -->
+        <p class="panel notice" id="chart-warning" hidden>
+          Charts could not load. Check your internet connection and refresh the page.
+        </p>
+
+        <!-- Things that need action -->
+        <div class="panel">
+          <h2>Needs attention</h2>
+          <ul class="attention-list" id="attention-list"></ul>
+        </div>
+
+        <!-- Charts. Each has a <canvas> to draw on, and a message for when there is no data. -->
+        <div class="chart-grid">
+          <div class="panel">
+            <h2>Learning progress by category</h2>
+            <div class="chart-box"><canvas id="chart-learning"></canvas></div>
+            <p class="empty" id="chart-learning-empty" hidden>Add learning topics to see this chart.</p>
+          </div>
+          <div class="panel">
+            <h2>Projects by status</h2>
+            <div class="chart-box"><canvas id="chart-projects"></canvas></div>
+            <p class="empty" id="chart-projects-empty" hidden>Add projects to see this chart.</p>
+          </div>
+          <div class="panel">
+            <h2>Internship applications</h2>
+            <div class="chart-box"><canvas id="chart-applications"></canvas></div>
+            <p class="empty" id="chart-applications-empty" hidden>Track applications to see this chart.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="learning" class="page">
+        <h1>Learning progress</h1>
+        <p class="muted">Add the topics you are studying and move the slider as you learn.</p>
+
+        <!-- Summary numbers: learning.js fills these in -->
+        <div class="stats">
+          <div class="stat"><span class="stat-number" id="learn-total">0</span><span class="stat-label">Topics</span></div>
+          <div class="stat"><span class="stat-number" id="learn-done">0</span><span class="stat-label">Completed</span></div>
+          <div class="stat"><span class="stat-number" id="learn-average">0%</span><span class="stat-label">Average progress</span></div>
+        </div>
+
+        <!-- Form to add a topic. The "submit" event is handled in learning.js -->
+        <form id="topic-form" class="panel form-row">
+          <div class="field grow">
+            <label for="topic-name">Topic</label>
+            <input type="text" id="topic-name" placeholder="e.g. Kinematics of robot arms" required maxlength="80" />
+          </div>
+          <div class="field">
+            <label for="topic-category">Category</label>
+            <select id="topic-category">
+              <option>Programming</option>
+              <option>Machine Learning</option>
+              <option>Robotics</option>
+              <option>Computer Vision</option>
+              <option>Electronics</option>
+              <option>Mathematics</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <button type="submit" class="btn">Add topic</button>
+        </form>
+
+        <!-- Topic cards are inserted here by JavaScript -->
+        <div id="topic-list" class="card-list"></div>
+      </section>
+
+      <section id="resources" class="page">
+        <h1>Resource library</h1>
+        <p class="muted">Search, filter and save the best Robotics and AI learning resources. You can add your own too.</p>
+
+        <!-- Search and filter controls. Any change here redraws the list (see resources.js). -->
+        <div class="panel form-row filters">
+          <div class="field grow">
+            <label for="resource-search">Search</label>
+            <input type="search" id="resource-search" placeholder="Try: ROS, vision, linear algebra" />
+          </div>
+          <div class="field">
+            <label for="filter-category">Category</label>
+            <select id="filter-category">
+              <option>All</option>
+              <option>Programming</option>
+              <option>Machine Learning</option>
+              <option>Robotics</option>
+              <option>Computer Vision</option>
+              <option>Electronics</option>
+              <option>Mathematics</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="filter-type">Type</label>
+            <select id="filter-type">
+              <option>All</option>
+              <option>Course</option>
+              <option>Documentation</option>
+              <option>Video</option>
+              <option>Tutorial</option>
+            </select>
+          </div>
+          <label class="check"><input type="checkbox" id="filter-saved" /> Saved only</label>
+        </div>
+
+        <!-- <details> is a built-in HTML element that opens and closes, no JavaScript needed -->
+        <details class="panel add-resource">
+          <summary>Add your own resource</summary>
+          <form id="resource-form" class="form-row">
+            <div class="field grow">
+              <label for="res-title">Title</label>
+              <input type="text" id="res-title" required maxlength="80" />
+            </div>
+            <div class="field grow">
+              <label for="res-url">Link</label>
+              <input type="url" id="res-url" placeholder="https://..." required />
+            </div>
+            <div class="field">
+              <label for="res-category">Category</label>
+              <select id="res-category">
+                <option>Programming</option>
+                <option>Machine Learning</option>
+                <option>Robotics</option>
+                <option>Computer Vision</option>
+                <option>Electronics</option>
+                <option>Mathematics</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="res-type">Type</label>
+              <select id="res-type">
+                <option>Course</option>
+                <option>Documentation</option>
+                <option>Video</option>
+                <option>Tutorial</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label for="res-description">Short description</label>
+              <textarea id="res-description" rows="2" maxlength="160"></textarea>
+            </div>
+            <button type="submit" class="btn">Add resource</button>
+          </form>
+        </details>
+
+        <p id="resource-count" class="muted"></p>
+        <div id="resource-list" class="card-list"></div>
+      </section>
+
+      <section id="projects" class="page">
+        <h1>Projects</h1>
+        <p class="muted">Plan your builds, break them into tasks, and watch them move across the board.</p>
+
+        <!-- Form to create a project -->
+        <form id="project-form" class="panel form-row">
+          <div class="field grow">
+            <label for="proj-title">Project name</label>
+            <input type="text" id="proj-title" placeholder="e.g. Line-following robot" required maxlength="60" />
+          </div>
+          <div class="field">
+            <label for="proj-status">Status</label>
+            <select id="proj-status">
+              <option>Planning</option>
+              <option>In Progress</option>
+              <option>Completed</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="proj-deadline">Deadline (optional)</label>
+            <input type="date" id="proj-deadline" />
+          </div>
+          <div class="field full">
+            <label for="proj-description">Description</label>
+            <textarea id="proj-description" rows="2" maxlength="200" placeholder="What are you building and why?"></textarea>
+          </div>
+          <div class="field grow">
+            <label for="proj-tech">Tech used (separate with commas)</label>
+            <input type="text" id="proj-tech" placeholder="Arduino, Python, OpenCV" maxlength="100" />
+          </div>
+          <div class="field grow">
+            <label for="proj-repo">Repository link (optional)</label>
+            <input type="url" id="proj-repo" placeholder="https://github.com/..." />
+          </div>
+          <button type="submit" class="btn">Add project</button>
+        </form>
+
+        <!-- Three columns. JavaScript fills each list and its counter. -->
+        <div class="board">
+          <div class="column">
+            <h2>Planning <span class="count" id="count-planning">0</span></h2>
+            <div class="column-list" id="col-planning"></div>
+          </div>
+          <div class="column">
+            <h2>In Progress <span class="count" id="count-progress">0</span></h2>
+            <div class="column-list" id="col-progress"></div>
+          </div>
+          <div class="column">
+            <h2>Completed <span class="count" id="count-completed">0</span></h2>
+            <div class="column-list" id="col-completed"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="internships" class="page">
+        <h1>Internship tracker</h1>
+        <p class="muted">Record every application, update its status, and never miss a follow-up.</p>
+
+        <!-- Summary numbers -->
+        <div class="stats">
+          <div class="stat"><span class="stat-number" id="int-total">0</span><span class="stat-label">Total tracked</span></div>
+          <div class="stat"><span class="stat-number" id="int-applied">0</span><span class="stat-label">Applied</span></div>
+          <div class="stat"><span class="stat-number" id="int-interview">0</span><span class="stat-label">Interviews</span></div>
+          <div class="stat"><span class="stat-number" id="int-offer">0</span><span class="stat-label">Offers</span></div>
+        </div>
+
+        <!-- Add an application -->
+        <details class="panel add-resource" open>
+          <summary>Add an application</summary>
+          <form id="internship-form" class="form-row">
+            <div class="field grow">
+              <label for="int-company">Company</label>
+              <input type="text" id="int-company" required maxlength="60" />
+            </div>
+            <div class="field grow">
+              <label for="int-role">Role</label>
+              <input type="text" id="int-role" placeholder="e.g. Robotics Intern" required maxlength="60" />
+            </div>
+            <div class="field grow">
+              <label for="int-location">Location</label>
+              <input type="text" id="int-location" placeholder="City or Remote" maxlength="60" />
+            </div>
+            <div class="field">
+              <label for="int-status">Status</label>
+              <select id="int-status">
+                <option>Wishlist</option>
+                <option>Applied</option>
+                <option>Interview</option>
+                <option>Offer</option>
+                <option>Rejected</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="int-date">Date applied</label>
+              <input type="date" id="int-date" />
+            </div>
+            <div class="field grow">
+              <label for="int-link">Posting link (optional)</label>
+              <input type="url" id="int-link" placeholder="https://..." />
+            </div>
+            <div class="field full">
+              <label for="int-notes">Notes</label>
+              <textarea id="int-notes" rows="2" maxlength="200" placeholder="Contact person, documents sent, interview date..."></textarea>
+            </div>
+            <button type="submit" class="btn">Add application</button>
+          </form>
+        </details>
+
+        <!-- Filter buttons are created by JavaScript, plus search and sort -->
+        <div class="chips" id="internship-chips"></div>
+        <div class="panel form-row filters">
+          <div class="field grow">
+            <label for="internship-search">Search</label>
+            <input type="search" id="internship-search" placeholder="Company or role" />
+          </div>
+          <div class="field">
+            <label for="internship-sort">Sort by</label>
+            <select id="internship-sort">
+              <option value="recent">Recently added</option>
+              <option value="applied">Date applied</option>
+              <option value="company">Company A to Z</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="internship-list" class="card-list"></div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Scripts go at the END of body so the HTML above exists before the JavaScript runs.
+       storage.js must load BEFORE app.js because app.js uses it. -->
+  <script src="js/storage.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/learning.js"></script>
+  <script src="js/resources-data.js"></script>
+  <script src="js/resources.js"></script>
+  <script src="js/projects.js"></script>
+  <script src="js/internships.js"></script>
+  <!-- Chart.js: a free library that draws charts. It must load before dashboard.js. -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

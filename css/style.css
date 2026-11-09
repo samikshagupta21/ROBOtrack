@@ -1,0 +1,337 @@
+/* ==========================================================
+   ROBOtrack - style.css
+   1. Design tokens (colours, spacing)   2. Base styles
+   3. Layout                             4. Navigation
+   5. Mobile layout
+   ========================================================== */
+
+/* 1. DESIGN TOKENS
+   CSS variables let us change the look of the whole site from one place. */
+:root {
+  --ink: #14213d;        /* main text and brand colour (deep navy) */
+  --muted: #5d6b82;      /* secondary text */
+  --paper: #eef2f7;      /* page background (cool grey-blue) */
+  --surface: #ffffff;    /* cards and panels */
+  --accent: #0b7a75;     /* teal: buttons, active states */
+  --accent-soft: #d9f0ee;/* light teal for backgrounds */
+  --line: #d5dce7;       /* borders */
+  --radius: 10px;
+  --sidebar-width: 220px;
+}
+
+/* 2. BASE STYLES */
+* { box-sizing: border-box; }   /* padding no longer makes elements wider than you set */
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  line-height: 1.5;
+}
+
+h1 { font-size: 1.75rem; margin: 0 0 0.25rem; }
+.muted { color: var(--muted); margin-top: 0; }
+
+/* Visible outline when someone uses the keyboard (good accessibility) */
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* 3. LAYOUT
+   .app is a grid with two columns: a fixed sidebar and a flexible content area. */
+.app {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr;
+  min-height: 100vh;
+}
+
+.content { padding: 2rem; max-width: 1100px; }
+
+/* Pages are hidden by default; app.js adds the class "active" to the one to show. */
+.page { display: none; }
+.page.active { display: block; }
+
+/* 4. NAVIGATION */
+.sidebar {
+  background: var(--ink);
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  position: sticky;      /* stays in place while the content scrolls */
+  top: 0;
+  height: 100vh;
+}
+
+.brand {
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  padding: 0 0.75rem;
+}
+.brand span { color: #6fd6cf; font-weight: 400; }
+
+.nav-btn {
+  background: none;
+  border: none;
+  color: #c3cde0;
+  text-align: left;
+  font: inherit;
+  padding: 0.7rem 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.nav-btn:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+.nav-btn.active { background: var(--accent); color: #fff; }
+
+/* 5. MOBILE LAYOUT
+   On screens 700px wide or smaller, the sidebar becomes a bar fixed to the bottom. */
+@media (max-width: 700px) {
+  .app { grid-template-columns: 1fr; }   /* one column only */
+
+  .sidebar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0; top: auto;
+    height: auto;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 0.4rem;
+    z-index: 10;
+  }
+  .brand { display: none; }              /* no room for the logo */
+  .nav-btn { font-size: 0.75rem; padding: 0.6rem 0.4rem; text-align: center; }
+
+  /* Extra bottom padding so the fixed bar never covers content */
+  .content { padding: 1.25rem 1rem 5rem; }
+}
+
+/* ==========================================================
+   6. REUSABLE COMPONENTS (added in Stage 2)
+   Panels, forms, buttons, cards. Later stages reuse these.
+   ========================================================== */
+
+/* Row of summary numbers */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));  /* wraps automatically on small screens */
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+.stat-number { font-size: 1.8rem; font-weight: 700; color: var(--accent); }
+.stat-label { color: var(--muted); font-size: 0.9rem; }
+
+/* Panel: a white box that groups related things */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Form layout */
+.form-row { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; }
+.field { display: flex; flex-direction: column; gap: 0.3rem; }
+.field.grow { flex: 1 1 220px; }
+.field label { font-size: 0.85rem; color: var(--muted); }
+
+input[type="text"], select {
+  font: inherit;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+}
+
+/* Buttons */
+.btn {
+  font: inherit;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 0.65rem 1.1rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.btn:hover { filter: brightness(0.92); }
+
+.btn-link {
+  background: none;
+  border: none;
+  color: #b3261e;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.btn-link:hover { text-decoration: underline; }
+
+/* Cards */
+.card-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem;
+}
+.card h3 { margin: 0 0 0.3rem; font-size: 1.05rem; }
+.card-top { display: flex; justify-content: space-between; gap: 0.5rem; align-items: flex-start; }
+
+.badge {
+  display: inline-block;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.8rem;
+  padding: 0.1rem 0.6rem;
+  border-radius: 99px;
+}
+
+/* Slider */
+.slider-row { display: flex; align-items: center; gap: 0.75rem; margin-top: 1rem; }
+.slider-row input[type="range"] { flex: 1; accent-color: var(--accent); }
+.topic-percent { min-width: 3rem; text-align: right; font-weight: 600; }
+
+/* Message shown when a list is empty */
+.empty { color: var(--muted); grid-column: 1 / -1; }
+
+/* ==========================================================
+   7. RESOURCE LIBRARY (added in Stage 3)
+   ========================================================== */
+
+/* Extend the input styling from Stage 2 to the new input types */
+input[type="search"], input[type="url"], textarea {
+  font: inherit;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  width: 100%;
+}
+.field.full { flex: 1 1 100%; }
+.check { display: flex; align-items: center; gap: 0.4rem; padding-bottom: 0.65rem; cursor: pointer; }
+
+.add-resource summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+.add-resource form { margin-top: 1rem; }
+
+.badge-type { background: #e6e9f2; color: var(--ink); }
+.resource-desc { color: var(--muted); font-size: 0.92rem; margin: 0.75rem 0; }
+
+.card-actions { display: flex; align-items: center; gap: 0.5rem; margin-top: auto; }
+.resource-card { display: flex; flex-direction: column; gap: 0.4rem; }
+
+.btn-small { padding: 0.4rem 0.9rem; font-size: 0.9rem; text-decoration: none; display: inline-block; }
+.btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.btn-outline:hover { background: var(--accent-soft); filter: none; }
+.btn-outline.is-saved { background: var(--accent); color: #fff; }
+
+/* ==========================================================
+   8. PROJECT BOARD (added in Stage 4)
+   ========================================================== */
+
+input[type="date"] {
+  font: inherit;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+}
+
+/* Three equal columns on desktop */
+.board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; align-items: start; }
+.column { background: #e4e9f1; border-radius: var(--radius); padding: 0.75rem; }
+.column h2 { font-size: 1rem; margin: 0 0 0.75rem; display: flex; justify-content: space-between; align-items: center; }
+.count { background: var(--ink); color: #fff; font-size: 0.8rem; padding: 0.05rem 0.55rem; border-radius: 99px; }
+.column-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.5rem; }
+.deadline { font-size: 0.85rem; color: var(--muted); margin: 0.25rem 0; }
+.deadline.overdue { color: #b3261e; font-weight: 600; }
+.repo-link { font-size: 0.85rem; color: var(--accent); }
+
+/* Progress bar */
+.progress-label { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); margin-top: 0.75rem; }
+.progress { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; margin: 0.25rem 0 0.75rem; }
+.progress-fill { height: 100%; background: var(--accent); transition: width 0.3s; }
+
+/* Task checklist */
+.task-list { list-style: none; margin: 0 0 0.5rem; padding: 0; }
+.task { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; padding: 0.2rem 0; font-size: 0.92rem; }
+.task label { display: flex; gap: 0.5rem; align-items: center; cursor: pointer; }
+.task input { accent-color: var(--accent); }
+.task.done span { text-decoration: line-through; color: var(--muted); }
+
+.task-form { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+.task-form input { flex: 1; min-width: 0; padding: 0.4rem 0.6rem; border: 1px solid var(--line); border-radius: 8px; font: inherit; }
+.status-select { width: 100%; font-size: 0.9rem; }
+
+/* On tablets and phones the three columns stack vertically */
+@media (max-width: 900px) {
+  .board { grid-template-columns: 1fr; }
+}
+
+/* ==========================================================
+   9. INTERNSHIP TRACKER (added in Stage 5)
+   ========================================================== */
+
+/* Filter buttons */
+.chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+.chip {
+  font: inherit;
+  font-size: 0.9rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 0.35rem 0.9rem;
+  border-radius: 99px;
+  cursor: pointer;
+}
+.chip:hover { border-color: var(--accent); }
+.chip.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+
+.company { margin: 0; color: var(--muted); font-size: 0.92rem; }
+.internship-card { display: flex; flex-direction: column; gap: 0.35rem; }
+.internship-card .status-select { margin-top: 0.5rem; }
+
+/* Coloured status labels */
+.status-pill {
+  align-self: flex-start;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.15rem 0.7rem;
+  border-radius: 99px;
+}
+.status-wishlist  { background: #e6e9f2; color: var(--ink); }
+.status-applied   { background: #dbeafe; color: #1e40af; }
+.status-interview { background: #fef3c7; color: #92400e; }
+.status-offer     { background: #d9f0ee; color: #0b6b66; }
+.status-rejected  { background: #fde4e1; color: #b3261e; }
+
+/* ==========================================================
+   10. DASHBOARD (added in Stage 6)
+   ========================================================== */
+
+.panel h2 { font-size: 1.05rem; margin: 0 0 0.75rem; }
+
+.chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+.chart-grid .panel { margin-bottom: 0; }
+/* Chart.js needs a box with a set height and position: relative to size its chart */
+.chart-box { position: relative; height: 260px; }
+
+.attention-list { margin: 0; padding-left: 1.2rem; }
+.attention-list li { margin-bottom: 0.35rem; color: #b3261e; }
+.attention-list li.all-clear { color: var(--accent); list-style: none; margin-left: -1.2rem; }
+
+.notice { background: #fef3c7; border-color: #f2d98a; color: #6f4a00; }
+
+/* Keep the hidden attribute working even where we set display on the element */
+[hidden] { display: none !important; }
